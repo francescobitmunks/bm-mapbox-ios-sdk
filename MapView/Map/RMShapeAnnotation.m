@@ -81,4 +81,9 @@
     return ((RMShape *)[self layer]).fillColor;
 }
 
+-(void)setImage:(UIImage *)image
+{
+    [super setImage:image];
+}
+
 @end

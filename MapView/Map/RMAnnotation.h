@@ -165,4 +165,6 @@
 // Used internally
 @property (nonatomic, weak) RMMapView *mapView;
 
+@property (nonatomic, strong) UIImage* image;
+
 @end

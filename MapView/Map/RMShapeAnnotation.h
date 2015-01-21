@@ -51,4 +51,5 @@
 /** A fill color for the annotation's shape. */
 @property (nonatomic, strong) UIColor *fillColor;
 
+-(void)setImage:(UIImage *)image;
 @end

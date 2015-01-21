@@ -62,6 +62,7 @@
 @synthesize isClusterAnnotation=_isClusterAnnotation;
 @synthesize clusteredAnnotations;
 @synthesize isUserLocationAnnotation;
+@synthesize image;
 
 + (instancetype)annotationWithMapView:(RMMapView *)aMapView coordinate:(CLLocationCoordinate2D)aCoordinate andTitle:(NSString *)aTitle
 {
@@ -159,6 +160,14 @@
     {
         layer = aLayer;
         layer.annotation = self;
+        
+        if (self.image != nil) {
+            layer.contents = (id)self.image.CGImage;
+            layer.opacity = 1.0f;
+            layer.bounds =CGRectMake(0, 0, self.image.size.width, self.image.size.height);
+            layer.frame = CGRectMake(0, 0, self.image.size.width, self.image.size.height);
+        }
+        
         [superLayer addSublayer:layer];
         [layer setPosition:self.position animated:NO];
     }
