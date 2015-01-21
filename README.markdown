@@ -1,3 +1,5 @@
+RMImageAnnotation added: http://mikesknowledgebase.azurewebsites.net/pages/Other/MapBoxImages.htm
+
 Mapbox iOS SDK
 --------------
 
