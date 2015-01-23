@@ -37,6 +37,7 @@
 #import "RMAnnotation.h"
 #import "RMQuadTree.h"
 #import "RMPointAnnotation.h"
+#import "RMImageAnnotation.h"
 
 #import "RMFractalTileProjection.h"
 
@@ -1071,6 +1072,10 @@
                                  ((planetBounds.size.height - normalizedProjectedPoint.y - boundsRect.size.height) / _metersPerPixel) / zoomScale,
                                  (boundsRect.size.width / _metersPerPixel) / zoomScale,
                                  (boundsRect.size.height / _metersPerPixel) / zoomScale);
+    
+    CGRect operatingRect = CGRectMake(100, 200, 486, 383);//(x=100, y=200) size=(width=486, height=383)
+    
+    
     [_mapScrollView zoomToRect:zoomRect animated:animated];
 }
 
@@ -1232,6 +1237,96 @@
 
 #pragma mark -
 #pragma mark Zoom With Bounds
+-(float) minimumZoomLevelForBoundsSouthWest:(CLLocationCoordinate2D)southWest northEast:(CLLocationCoordinate2D)northEast forOperatingRect:(CGRect)operatingRect
+{
+    if (northEast.latitude == southWest.latitude && northEast.longitude == southWest.longitude) // There are no bounds, probably only one marker.
+    {
+        RMProjectedRect zoomRect;
+        RMProjectedPoint myOrigin = [_projection coordinateToProjectedPoint:southWest];
+        
+        // Default is with scale = 2.0 * mercators/pixel
+        zoomRect.size.width = [self bounds].size.width * 2.0;
+        zoomRect.size.height = [self bounds].size.height * 2.0;
+        myOrigin.x = myOrigin.x - (zoomRect.size.width / 2.0);
+        myOrigin.y = myOrigin.y - (zoomRect.size.height / 2.0);
+        zoomRect.origin = myOrigin;
+        
+        //[self setProjectedBounds:zoomRect animated:animated];
+    }
+    else
+    {
+        // Convert northEast/southWest into RMMercatorRect and call zoomWithBounds
+        CLLocationCoordinate2D midpoint = {
+            .latitude = (northEast.latitude + southWest.latitude) / 2,
+            .longitude = (northEast.longitude + southWest.longitude) / 2
+        };
+        
+        RMProjectedPoint myOrigin = [_projection coordinateToProjectedPoint:midpoint];
+        RMProjectedPoint southWestPoint = [_projection coordinateToProjectedPoint:southWest];
+        RMProjectedPoint northEastPoint = [_projection coordinateToProjectedPoint:northEast];
+        RMProjectedPoint myPoint = {
+            .x = northEastPoint.x - southWestPoint.x,
+            .y = northEastPoint.y - southWestPoint.y
+        };
+        
+        // Create the new zoom layout
+        RMProjectedRect zoomRect;
+        
+        // Default is with scale = 2.0 * mercators/pixel
+        zoomRect.size.width = self.bounds.size.width * 2.0;
+        zoomRect.size.height = self.bounds.size.height * 2.0;
+        
+        if ((myPoint.x / self.bounds.size.width) < (myPoint.y / self.bounds.size.height))
+        {
+            if ((myPoint.y / self.bounds.size.height) > 1)
+            {
+                zoomRect.size.width = self.bounds.size.width * (myPoint.y / self.bounds.size.height);
+                zoomRect.size.height = self.bounds.size.height * (myPoint.y / self.bounds.size.height);
+            }
+        }
+        else
+        {
+            if ((myPoint.x / self.bounds.size.width) > 1)
+            {
+                zoomRect.size.width = self.bounds.size.width * (myPoint.x / self.bounds.size.width);
+                zoomRect.size.height = self.bounds.size.height * (myPoint.x / self.bounds.size.width);
+            }
+        }
+        
+        myOrigin.x = myOrigin.x - (zoomRect.size.width / 2);
+        myOrigin.y = myOrigin.y - (zoomRect.size.height / 2);
+        zoomRect.origin = myOrigin;
+        
+        //
+        RMProjectedRect boundsRect = zoomRect;
+        
+        if (_constrainMovement)
+            boundsRect = [self fitProjectedRect:boundsRect intoRect:_constrainingProjectedBounds];
+        
+        RMProjectedRect planetBounds = _projection.planetBounds;
+        RMProjectedPoint normalizedProjectedPoint;
+        normalizedProjectedPoint.x = boundsRect.origin.x + fabs(planetBounds.origin.x);
+        normalizedProjectedPoint.y = boundsRect.origin.y + fabs(planetBounds.origin.y);
+        
+        float zoomScale = _mapScrollView.zoomScale;
+        CGRect zoomRect2 = CGRectMake((normalizedProjectedPoint.x / _metersPerPixel) / zoomScale,
+                                     ((planetBounds.size.height - normalizedProjectedPoint.y - boundsRect.size.height) / _metersPerPixel) / zoomScale,
+                                     (boundsRect.size.width / _metersPerPixel) / zoomScale,
+                                     (boundsRect.size.height / _metersPerPixel) / zoomScale);
+        
+        //CGRect operatingRect = CGRectMake(100, 200, 486, 383);//(x=100, y=200) size=(width=486, height=383)
+        // Calculate ZoomLevel
+        float scaleX = operatingRect.size.width / zoomRect2.size.width;
+        float scaleY = operatingRect.size.height / zoomRect2.size.height;
+        
+        float scale = fminf(scaleX, scaleY);
+        
+        float zoom = log2f(scale);
+        return zoom;
+    }
+    return 0;
+}
+
 
 - (void)zoomWithLatitudeLongitudeBoundsSouthWest:(CLLocationCoordinate2D)southWest northEast:(CLLocationCoordinate2D)northEast animated:(BOOL)animated
 {
@@ -2744,6 +2839,23 @@
 
 #pragma mark -
 #pragma mark LatLng/Pixel translation functions
+-(CLLocationCoordinate2D) pixelXYToLatLong:(CGPoint)point zoom:(float)zoom
+{
+    double contentPixels = 256 * powf(2, zoom);
+    
+    double metersPerPixel = _projection.planetBounds.size.width / contentPixels;
+    
+    double contentOffsetX = _mapScrollView.contentOffset.x / _metersPerPixel * metersPerPixel;
+    double contentOffsetY = _mapScrollView.contentOffset.y / _metersPerPixel * metersPerPixel;
+    
+    RMProjectedRect planetBounds = _projection.planetBounds;
+    RMProjectedPoint normalizedProjectedPoint;
+    normalizedProjectedPoint.x = ((point.x + contentOffsetX) * metersPerPixel) - fabs(planetBounds.origin.x);
+    normalizedProjectedPoint.y = ((contentPixels - contentOffsetY - point.y) * metersPerPixel) - fabs(planetBounds.origin.y);
+
+    return [_projection projectedPointToCoordinate:normalizedProjectedPoint];
+}
+
 
 - (CGPoint)projectedPointToPixel:(RMProjectedPoint)projectedPoint
 {
@@ -3122,6 +3234,7 @@
         //
         [sortedAnnotations sortUsingComparator:^(RMAnnotation *annotation1, RMAnnotation *annotation2)
         {
+            
             // Sort user location annotations below all.
             //
             if (   annotation1.isUserLocationAnnotation && ! annotation2.isUserLocationAnnotation)
@@ -3172,6 +3285,46 @@
             if ( ! [annotation1.layer isKindOfClass:[RMMarker class]] &&   [annotation2.layer isKindOfClass:[RMMarker class]])
                 return NSOrderedAscending;
 
+            
+
+            
+            
+            // If it's an RMImageAnnotation, use the zLevel to order
+            if([annotation1 isKindOfClass:[RMImageAnnotation class]] && [annotation2 isKindOfClass:[RMImageAnnotation class]])
+            {
+                if(((RMImageAnnotation*)annotation1).zLevel > ((RMImageAnnotation*)annotation2).zLevel)
+                {
+                    return NSOrderedDescending;
+                }
+                else
+                {
+                    return NSOrderedAscending;
+                }
+            }
+            
+            // Sort shapes above images
+            if (   [annotation1.layer isKindOfClass:[RMShape class]] && [annotation2 isKindOfClass:[RMImageAnnotation class]])
+                return NSOrderedDescending;
+                
+            if (   [annotation1 isKindOfClass:[RMImageAnnotation class]] && [annotation2.layer isKindOfClass:[RMShape class]])
+                return NSOrderedAscending;
+            
+            // Sort by line width
+            if([annotation1.layer isKindOfClass:[RMShape class]] && [annotation2.layer isKindOfClass:[RMShape class]])
+            {
+                float annotation1Width = ((RMShape*)annotation1.layer).lineWidth;
+                float annotation2Width = ((RMShape*)annotation2.layer).lineWidth;
+                
+                if(annotation1Width > annotation2Width)
+                {
+                    return NSOrderedAscending;
+                } else
+                {
+                    return NSOrderedDescending;
+                }
+            }
+            
+            
             // Sort the rest in increasing y-position.
             //
             if (annotation1.absolutePosition.y > annotation2.absolutePosition.y)

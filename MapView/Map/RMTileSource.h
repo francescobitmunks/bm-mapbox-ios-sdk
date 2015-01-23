@@ -108,4 +108,7 @@
 
 - (void)didReceiveMemoryWarning;
 
+
+// FRANCESCO CHANGEMENT
+-(RMFractalTileProjection *)tileProjection;
 @end

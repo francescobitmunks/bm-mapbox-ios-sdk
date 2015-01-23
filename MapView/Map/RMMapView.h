@@ -257,6 +257,11 @@ typedef enum : NSUInteger {
 *   @param animated Whether to animate the zoom. */
 - (void)zoomWithLatitudeLongitudeBoundsSouthWest:(CLLocationCoordinate2D)southWest northEast:(CLLocationCoordinate2D)northEast animated:(BOOL)animated;
 
+
+//FRANCESCO
+//-(UIScrollView*) mapScrollView;
+-(float) minimumZoomLevelForBoundsSouthWest:(CLLocationCoordinate2D)southWest northEast:(CLLocationCoordinate2D)northEast forOperatingRect:(CGRect)operatingRect;
+
 - (float)nextNativeZoomFactor;
 - (float)previousNativeZoomFactor;
 
@@ -451,6 +456,7 @@ typedef enum : NSUInteger {
 
 /** @name Converting Map Coordinates */
 
+-(CLLocationCoordinate2D) pixelXYToLatLong:(CGPoint)point zoom:(float)zoom;
 /** Convert a projected point to a screen location. 
 *   @param projectedPoint The projected point to convert. 
 *   @return The equivalent screen location. */

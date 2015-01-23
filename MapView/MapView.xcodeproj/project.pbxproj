@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		126693040EB76C0B00E002D5 /* RMConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 126692A00EB75C0A00E002D5 /* RMConfiguration.m */; };
+		136F41C31A7258D700905C3D /* RMImageAnnotation.h in Headers */ = {isa = PBXBuildFile; fileRef = 136F41C11A7258D700905C3D /* RMImageAnnotation.h */; };
+		136F41C41A7258D700905C3D /* RMImageAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 136F41C21A7258D700905C3D /* RMImageAnnotation.m */; };
 		1606C9FE13D86BA400547581 /* RMOpenCycleMapSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 1606C9FC13D86BA300547581 /* RMOpenCycleMapSource.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		1606C9FF13D86BA400547581 /* RMOpenCycleMapSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 1606C9FD13D86BA300547581 /* RMOpenCycleMapSource.m */; };
 		1607499514E120A100D535F5 /* RMGenericMapSource.h in Headers */ = {isa = PBXBuildFile; fileRef = 1607499314E120A100D535F5 /* RMGenericMapSource.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -191,6 +193,8 @@
 		1266929F0EB75C0A00E002D5 /* RMConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMConfiguration.h; sourceTree = "<group>"; };
 		126692A00EB75C0A00E002D5 /* RMConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMConfiguration.m; sourceTree = "<group>"; };
 		12F2031E0EBB65E9003D7B6B /* RMMapViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMMapViewDelegate.h; sourceTree = "<group>"; };
+		136F41C11A7258D700905C3D /* RMImageAnnotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMImageAnnotation.h; sourceTree = "<group>"; };
+		136F41C21A7258D700905C3D /* RMImageAnnotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMImageAnnotation.m; sourceTree = "<group>"; };
 		1606C9FC13D86BA300547581 /* RMOpenCycleMapSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMOpenCycleMapSource.h; sourceTree = "<group>"; };
 		1606C9FD13D86BA300547581 /* RMOpenCycleMapSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RMOpenCycleMapSource.m; sourceTree = "<group>"; };
 		1607499314E120A100D535F5 /* RMGenericMapSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMGenericMapSource.h; sourceTree = "<group>"; };
@@ -390,6 +394,16 @@
 			name = Configuration;
 			sourceTree = "<group>";
 		};
+		136F41BA1A7257D100905C3D /* RMImageAnnotation */ = {
+			isa = PBXGroup;
+			children = (
+				136F41C11A7258D700905C3D /* RMImageAnnotation.h */,
+				136F41C21A7258D700905C3D /* RMImageAnnotation.m */,
+			);
+			name = RMImageAnnotation;
+			path = "../../../flanders-outdoors-ios/FlandersOutdoors/FlandersOutdoors";
+			sourceTree = "<group>";
+		};
 		16EC85CB133CA69A00219947 /* Map Sources */ = {
 			isa = PBXGroup;
 			children = (
@@ -566,6 +580,7 @@
 				16F98C951590CFF000FF90CE /* RMShape.m */,
 				25757F4D1291C8640083D504 /* RMCircle.h */,
 				25757F4E1291C8640083D504 /* RMCircle.m */,
+				136F41BA1A7257D100905C3D /* RMImageAnnotation */,
 			);
 			name = "Annotation Layers";
 			sourceTree = "<group>";
@@ -761,6 +776,7 @@
 				DD56B9551961E23F00706C67 /* FMDatabaseQueue.h in Headers */,
 				DD98B6FA14D76B930092882F /* RMMapboxSource.h in Headers */,
 				1607499514E120A100D535F5 /* RMGenericMapSource.h in Headers */,
+				136F41C31A7258D700905C3D /* RMImageAnnotation.h in Headers */,
 				DDC4BED5152E3BD700089409 /* RMInteractiveSource.h in Headers */,
 				DD8FD7541559E4A40044D96F /* RMUserLocation.h in Headers */,
 				DDA6B8BD155CAB67003DB5D8 /* RMUserTrackingBarButtonItem.h in Headers */,
@@ -972,6 +988,7 @@
 				DD56B9501961E23F00706C67 /* FMDatabase.m in Sources */,
 				16E5A63B15E531F200C92A5A /* RMCompositeSource.m in Sources */,
 				DD56B9591961E23F00706C67 /* FMResultSet.m in Sources */,
+				136F41C41A7258D700905C3D /* RMImageAnnotation.m in Sources */,
 				DD5FA1EC15E2B020004EB6C5 /* RMLoadingTileView.m in Sources */,
 				DD41960216250ED40049E6BA /* RMTileCacheDownloadOperation.m in Sources */,
 				DD4195CA162356900049E6BA /* RMBingSource.m in Sources */,

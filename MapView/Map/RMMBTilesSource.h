@@ -81,4 +81,8 @@
 /** Returns YES if the tile source provides full-world coverage; otherwise, returns NO. */
 - (BOOL)coversFullWorld;
 
+
+// FRANCESCO CHANGEMENT
+-(RMFractalTileProjection *)tileProjection;
+
 @end

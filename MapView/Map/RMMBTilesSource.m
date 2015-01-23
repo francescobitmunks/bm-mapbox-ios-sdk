@@ -403,4 +403,10 @@
     return [NSString stringWithFormat:@"%@ - %@", [self shortName], [self shortAttribution]];
 }
 
+
+// FRANCESCO CHANGEMENT
+-(RMFractalTileProjection *)tileProjection
+{
+    return tileProjection;
+}
 @end
