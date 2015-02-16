@@ -159,7 +159,6 @@
     {
         if (!_northEast)
             _northEast = [[RMQuadTreeNode alloc] initWithMapView:_mapView forParent:self inBoundingBox:_northEastBoundingBox];
-
         [_northEast addAnnotation:annotation];
     }
     else if (RMProjectedRectContainsProjectedRect(_southWestBoundingBox, projectedRect))
@@ -593,7 +592,6 @@
 @end
 
 #pragma mark - RMQuadTree implementation
-
 @implementation RMQuadTree
 {
     RMQuadTreeNode *_rootNode;

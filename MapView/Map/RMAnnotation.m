@@ -161,10 +161,11 @@
         layer = aLayer;
         layer.annotation = self;
         
-        if (self.image != nil) {
+        if (self.image != nil)
+        {
             layer.contents = (id)self.image.CGImage;
             layer.opacity = 1.0f;
-            layer.bounds =CGRectMake(0, 0, self.image.size.width, self.image.size.height);
+            layer.bounds = CGRectMake(0, 0, self.image.size.width, self.image.size.height);
             layer.frame = CGRectMake(0, 0, self.image.size.width, self.image.size.height);
         }
         

@@ -149,5 +149,4 @@ typedef enum : NSUInteger {
 *   @param image An image to use for the marker.
 *   @param anchorPoint A point representing a range from `0` to `1` in each of the height and width coordinate space, normalized to the size of the image, at which to place the image. */
 - (void)replaceUIImage:(UIImage *)image anchorPoint:(CGPoint)anchorPoint;
-
 @end

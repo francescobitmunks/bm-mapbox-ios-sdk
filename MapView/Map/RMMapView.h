@@ -59,7 +59,7 @@ typedef enum : NSUInteger {
 /** An RMMapView object provides an embeddable map interface, similar to the one provided by Apple's MapKit. You use this class to display map information and to manipulate the map contents from your application. You can center the map on a given coordinate, specify the size of the area you want to display, and annotate the map with custom information.
 *
 *   @warning Please note that you are responsible for getting permission to use the map data, and for ensuring your use adheres to the relevant terms of use. */
-@interface RMMapView : UIView
+@interface RMMapView : UIView <CLLocationManagerDelegate>
 
 /** @name Accessing the Delegate */
 
@@ -537,5 +537,21 @@ typedef enum : NSUInteger {
 *   @param mode The mode used to track the user location. 
 *   @param animated Whether changes to the map center or rotation should be animated when the mode is changed. */
 - (void)setUserTrackingMode:(RMUserTrackingMode)mode animated:(BOOL)animated;
+
+
+- (void)correctPositionOfAllAnnotations;
+
+@property (nonatomic) CGRect operatingRect;
+
+-(RMMapScrollView*) mapScrollView;
+-(RMMapOverlayView*) overlayView;
+
+/*
+ Bool property useFollowWithHeadingOnlyForCompass:
+    YES:    the map wil only be rotated
+    NO:     the map wil be rotated + heading indicator will be visible (pointing to the top of the device) and the map will be centered on the current location
+ */
+@property (nonatomic, assign) BOOL useFollowWithHeadingOnlyForCompass; //default NO (indicator pointing to the top)
+
 
 @end

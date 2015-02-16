@@ -167,4 +167,7 @@
 
 @property (nonatomic, strong) UIImage* image;
 
+
+@property (nonatomic) NSInteger zLevel;
+
 @end

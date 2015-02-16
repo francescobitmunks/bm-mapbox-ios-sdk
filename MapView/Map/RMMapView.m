@@ -72,7 +72,7 @@
 @interface RMMapView (PrivateMethods) <UIScrollViewDelegate,
                                        UIGestureRecognizerDelegate,
                                        RMMapScrollViewDelegate,
-                                       CLLocationManagerDelegate,
+                                       //CLLocationManagerDelegate,
                                        SMCalloutViewDelegate,
                                        UIPopoverControllerDelegate,
                                        UIViewControllerTransitioningDelegate,
@@ -214,6 +214,9 @@
     SMCalloutView *_currentCallout;
 
     BOOL _rotateAtMinZoom;
+    
+    //FRANCESCO
+    CLLocationDirection _headingDirection;
 }
 
 @synthesize decelerationMode = _decelerationMode;
@@ -973,7 +976,6 @@
 {
     [self setCenterProjectedPoint:[_projection coordinateToProjectedPoint:centerCoordinate] animated:animated];
 }
-
 // ===
 
 - (RMProjectedPoint)centerProjectedPoint
@@ -1327,7 +1329,6 @@
     return 0;
 }
 
-
 - (void)zoomWithLatitudeLongitudeBoundsSouthWest:(CLLocationCoordinate2D)southWest northEast:(CLLocationCoordinate2D)northEast animated:(BOOL)animated
 {
     if (northEast.latitude == southWest.latitude && northEast.longitude == southWest.longitude) // There are no bounds, probably only one marker.
@@ -1463,7 +1464,6 @@
 
     [_mapScrollView addObserver:self forKeyPath:@"contentOffset" options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) context:NULL];
     _mapScrollView.mapScrollViewDelegate = self;
-
     _mapScrollView.zoomScale = exp2f([self zoom]);
     [self setDecelerationMode:_decelerationMode];
 
@@ -1705,6 +1705,10 @@
 
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(correctPositionOfAllAnnotations) object:nil];
 
+    // FRANCESCO CHANGEMENT: need to observer zoom property (zoom changed)
+    [self setZoom:_zoom];
+    
+    
     if (_zoom == _lastZoom)
     {
         CGPoint contentOffset = _mapScrollView.contentOffset;
@@ -3216,6 +3220,24 @@
     [self correctPositionOfAllAnnotationsIncludingInvisibles:YES animated:NO];
 }
 
+-(void) invalidate
+{
+    CGFloat angle = (M_PI / -180) * _headingDirection + 0.001;
+    
+    _mapTransform = CGAffineTransformMakeRotation(angle);
+    _annotationTransform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(-angle));
+    
+    _mapScrollView.transform = _mapTransform;
+    _compassButton.transform = _mapTransform;
+    _overlayView.transform   = _mapTransform;
+    
+    _compassButton.alpha = 1.0;
+    
+    for (RMAnnotation *annotation in _annotations)
+        if ([annotation.layer isKindOfClass:[RMMarker class]])
+            annotation.layer.transform = _annotationTransform;
+}
+
 - (void)correctOrderingOfAllAnnotations
 {
     NSMutableArray *sortedAnnotations = [NSMutableArray arrayWithArray:[_visibleAnnotations allObjects]];
@@ -3263,6 +3285,19 @@
                 if ([annotation2.annotationType isEqualToString:kRMTrackingHaloAnnotationTypeName])
                     return NSOrderedAscending;
             }
+            
+            // If it's an RMImageAnnotation, use the zLevel to order
+            if([annotation1 isKindOfClass:[RMImageAnnotation class]] && [annotation2 isKindOfClass:[RMImageAnnotation class]])
+            {
+                if(((RMImageAnnotation*)annotation1).zLevel > ((RMImageAnnotation*)annotation2).zLevel)
+                {
+                    return NSOrderedDescending;
+                }
+                else
+                {
+                    return NSOrderedAscending;
+                }
+            }
 
             // Return early if we're not otherwise sorting annotations.
             //
@@ -3277,6 +3312,8 @@
             if ( ! annotation1.isClusterAnnotation &&   annotation2.isClusterAnnotation)
                 return (_orderClusterMarkersAboveOthers ? NSOrderedAscending : NSOrderedDescending);
 
+            
+            
             // Sort markers above shapes.
             //
             if (   [annotation1.layer isKindOfClass:[RMMarker class]] && ! [annotation2.layer isKindOfClass:[RMMarker class]])
@@ -3285,10 +3322,7 @@
             if ( ! [annotation1.layer isKindOfClass:[RMMarker class]] &&   [annotation2.layer isKindOfClass:[RMMarker class]])
                 return NSOrderedAscending;
 
-            
-
-            
-            
+            /*
             // If it's an RMImageAnnotation, use the zLevel to order
             if([annotation1 isKindOfClass:[RMImageAnnotation class]] && [annotation2 isKindOfClass:[RMImageAnnotation class]])
             {
@@ -3301,6 +3335,10 @@
                     return NSOrderedAscending;
                 }
             }
+            */
+            
+            
+            
             
             // Sort shapes above images
             if (   [annotation1.layer isKindOfClass:[RMShape class]] && [annotation2 isKindOfClass:[RMImageAnnotation class]])
@@ -3324,6 +3362,32 @@
                 }
             }
             
+            
+            //
+            /*
+            if(annotation1.zLevel > 0 && annotation2.zLevel > 0)
+            {
+                if(annotation1.zLevel > annotation2.zLevel > 0)
+                {
+                    return NSOrderedDescending;
+
+                }
+                else
+                {
+                    return NSOrderedAscending;
+                }
+            }
+             */
+            if(annotation1.zLevel > annotation2.zLevel > 0)
+            {
+                return NSOrderedDescending;
+                
+            }
+            else
+            {
+                return NSOrderedAscending;
+            }
+
             
             // Sort the rest in increasing y-position.
             //
@@ -3530,6 +3594,9 @@
 
 - (void)setUserTrackingMode:(RMUserTrackingMode)mode
 {
+    if (mode == RMUserTrackingModeNone && _userTrackingMode != RMUserTrackingModeNone)
+        _headingDirection = 0;
+    
     [self setUserTrackingMode:mode animated:YES];
 }
 
@@ -3624,15 +3691,26 @@
         }
         case RMUserTrackingModeFollowWithHeading:
         {
+            
             self.showsUserLocation = YES;
 
             _userHeadingTrackingView = [[UIImageView alloc] initWithImage:[self headingAngleImageForAccuracy:MAXFLOAT]];
 
+            
             _userHeadingTrackingView.frame = CGRectMake((self.bounds.size.width  / 2) - (_userHeadingTrackingView.bounds.size.width / 2),
                                                         (self.bounds.size.height / 2) - _userHeadingTrackingView.bounds.size.height,
                                                         _userHeadingTrackingView.bounds.size.width,
                                                         _userHeadingTrackingView.bounds.size.height * 2);
-
+            /*
+            if(_operatingRect.size.width != 0)
+            {
+                _userHeadingTrackingView.frame = CGRectMake((_operatingRect.size.width  / 2) - (_userHeadingTrackingView.bounds.size.width / 2),
+                                                            (_operatingRect.size.height / 2) - _userHeadingTrackingView.bounds.size.height,
+                                                            _userHeadingTrackingView.bounds.size.width,
+                                                            _userHeadingTrackingView.bounds.size.height * 2);
+            }
+             */
+            
             _userHeadingTrackingView.contentMode = UIViewContentModeTop;
 
             _userHeadingTrackingView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin  |
@@ -3652,7 +3730,8 @@
                 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
                 [self locationManager:_locationManager didUpdateToLocation:self.userLocation.location fromLocation:self.userLocation.location];
                 #pragma clang diagnostic pop
-
+             
+            
             [self updateHeadingForDeviceOrientation];
 
             [_locationManager startUpdatingHeading];
@@ -3687,8 +3766,17 @@
     {
         // center on user location unless we're already centered there (or very close)
         //
-        CGPoint mapCenterPoint    = [self convertPoint:self.center fromView:self.superview];
+        CGPoint centerOperatingRect = CGPointMake((_operatingRect.origin.x - _operatingRect.size.width) / 2, (_operatingRect.origin.y - _operatingRect.size.height) / 2);
+
+        //CGPoint mapCenterPoint    = [self convertPoint:self.center fromView:self.superview];
+        CGPoint mapCenterPoint    = [self convertPoint:centerOperatingRect fromView:self.superview];
+        
         CGPoint userLocationPoint = [self mapPositionForAnnotation:self.userLocation];
+        
+        if(_useFollowWithHeadingOnlyForCompass)
+        {
+            return;
+        }
 
         if (fabsf(userLocationPoint.x - mapCenterPoint.x) > 1.0 || fabsf(userLocationPoint.y - mapCenterPoint.y) > 1.0)
         {
@@ -3720,7 +3808,8 @@
                     desiredSouthWest.latitude  != actualSouthWest.latitude  ||
                     desiredSouthWest.longitude != actualSouthWest.longitude)
                 {
-                    [self zoomWithLatitudeLongitudeBoundsSouthWest:desiredSouthWest northEast:desiredNorthEast animated:YES];
+                    //TODO: FRANCESCO CHANGEMENT LINE BELOW
+                    //[self zoomWithLatitudeLongitudeBoundsSouthWest:desiredSouthWest northEast:desiredNorthEast animated:YES];
                 }
             }
         }
@@ -3862,11 +3951,16 @@
     }
 
     CLLocationDirection headingDirection = (newHeading.trueHeading > 0 ? newHeading.trueHeading : newHeading.magneticHeading);
+    
+    _headingDirection = headingDirection;
 
     if (headingDirection != 0 && self.userTrackingMode == RMUserTrackingModeFollowWithHeading)
     {
         if (_userHeadingTrackingView.alpha < 1.0)
-            [UIView animateWithDuration:0.5 animations:^(void) { _userHeadingTrackingView.alpha = 1.0; }];
+            if(!_useFollowWithHeadingOnlyForCompass)
+            {
+                [UIView animateWithDuration:0.5 animations:^(void) { _userHeadingTrackingView.alpha = 1.0; }];
+            }
 
         [CATransaction begin];
         [CATransaction setAnimationDuration:0.5];
@@ -3878,6 +3972,7 @@
                          animations:^(void)
                          {
                              CGFloat angle = (M_PI / -180) * headingDirection;
+                             //NSLog(@"rmmapview angle: %f", angle);
 
                              _mapTransform = CGAffineTransformMakeRotation(angle);
                              _annotationTransform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(-angle));
@@ -4204,6 +4299,16 @@
 
                          [transitionContext completeTransition:YES];
                      }];
+}
+
+-(RMMapScrollView*) mapScrollView
+{
+    return _mapScrollView;
+}
+
+-(RMMapOverlayView*) overlayView
+{
+    return _overlayView;
 }
 
 @end
