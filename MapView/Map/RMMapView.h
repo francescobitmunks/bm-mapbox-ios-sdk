@@ -553,5 +553,10 @@ typedef enum : NSUInteger {
  */
 @property (nonatomic, assign) BOOL useFollowWithHeadingOnlyForCompass; //default NO (indicator pointing to the top)
 
+#pragma mark - BITMUNKS
+
+-(void) invalidate;
+
+
 
 @end
