@@ -53,3 +53,4 @@
 #import "RMTileMillSource.h"
 #import "RMUserLocation.h"
 #import "RMUserTrackingBarButtonItem.h"
+#import "SMCalloutView/SMCalloutView.h"
