@@ -187,7 +187,7 @@
     RMAnnotation *_draggedAnnotation;
     CGPoint _dragOffset;
 
-    CLLocationManager *_locationManager;
+    
 
     RMAnnotation *_accuracyCircleAnnotation;
     RMAnnotation *_trackingHaloAnnotation;
@@ -1075,7 +1075,7 @@
                                  (boundsRect.size.width / _metersPerPixel) / zoomScale,
                                  (boundsRect.size.height / _metersPerPixel) / zoomScale);
     
-    CGRect operatingRect = CGRectMake(100, 200, 486, 383);//(x=100, y=200) size=(width=486, height=383)
+    //CGRect operatingRect = CGRectMake(100, 200, 486, 383);//(x=100, y=200) size=(width=486, height=383)
     
     
     [_mapScrollView zoomToRect:zoomRect animated:animated];

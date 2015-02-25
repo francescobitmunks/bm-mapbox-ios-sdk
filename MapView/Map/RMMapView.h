@@ -60,6 +60,9 @@ typedef enum : NSUInteger {
 *
 *   @warning Please note that you are responsible for getting permission to use the map data, and for ensuring your use adheres to the relevant terms of use. */
 @interface RMMapView : UIView <CLLocationManagerDelegate>
+{
+    CLLocationManager *_locationManager;
+}
 
 /** @name Accessing the Delegate */
 
