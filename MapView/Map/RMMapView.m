@@ -3260,10 +3260,12 @@
             // Sort user location annotations below all.
             //
             if (   annotation1.isUserLocationAnnotation && ! annotation2.isUserLocationAnnotation)
-                return NSOrderedAscending;
+                //return NSOrderedAscending;
+                return NSOrderedDescending;
 
             if ( ! annotation1.isUserLocationAnnotation &&   annotation2.isUserLocationAnnotation)
-                return NSOrderedDescending;
+                //return NSOrderedDescending;
+                return NSOrderedAscending;
 
             // Amongst user location annotations, sort properly.
             //
@@ -3347,7 +3349,18 @@
             if (   [annotation1 isKindOfClass:[RMImageAnnotation class]] && [annotation2.layer isKindOfClass:[RMShape class]])
                 return NSOrderedAscending;
             
+            if(annotation1.zLevel > annotation2.zLevel )//> 0)
+            {
+                return NSOrderedDescending;
+                
+            }
+            else
+            {
+                return NSOrderedAscending;
+            }
+            
             // Sort by line width
+            /*
             if([annotation1.layer isKindOfClass:[RMShape class]] && [annotation2.layer isKindOfClass:[RMShape class]])
             {
                 float annotation1Width = ((RMShape*)annotation1.layer).lineWidth;
@@ -3356,11 +3369,14 @@
                 if(annotation1Width > annotation2Width)
                 {
                     return NSOrderedAscending;
-                } else
+                } else if(annotation1Width < annotation2Width)
                 {
                     return NSOrderedDescending;
+                } else
+                {
                 }
             }
+             */
             
             
             //
@@ -3378,15 +3394,7 @@
                 }
             }
              */
-            if(annotation1.zLevel > annotation2.zLevel > 0)
-            {
-                return NSOrderedDescending;
-                
-            }
-            else
-            {
-                return NSOrderedAscending;
-            }
+            
 
             
             // Sort the rest in increasing y-position.
