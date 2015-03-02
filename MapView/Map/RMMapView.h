@@ -560,6 +560,7 @@ typedef enum : NSUInteger {
 
 -(void) invalidate;
 
-
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView;
+- (void)registerMoveEventByUser:(BOOL)wasUserEvent;
 
 @end

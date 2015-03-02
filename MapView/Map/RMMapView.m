@@ -3257,7 +3257,7 @@
         [sortedAnnotations sortUsingComparator:^(RMAnnotation *annotation1, RMAnnotation *annotation2)
         {
             
-            // Sort user location annotations below all.
+            // Sort user location annotations above all.
             //
             if (   annotation1.isUserLocationAnnotation && ! annotation2.isUserLocationAnnotation)
                 //return NSOrderedAscending;
@@ -3323,6 +3323,7 @@
 
             if ( ! [annotation1.layer isKindOfClass:[RMMarker class]] &&   [annotation2.layer isKindOfClass:[RMMarker class]])
                 return NSOrderedAscending;
+            
 
             /*
             // If it's an RMImageAnnotation, use the zLevel to order
@@ -3344,11 +3345,18 @@
             
             // Sort shapes above images
             if (   [annotation1.layer isKindOfClass:[RMShape class]] && [annotation2 isKindOfClass:[RMImageAnnotation class]])
+            {
                 return NSOrderedDescending;
+            }
+            
                 
             if (   [annotation1 isKindOfClass:[RMImageAnnotation class]] && [annotation2.layer isKindOfClass:[RMShape class]])
+            {
                 return NSOrderedAscending;
+            }
             
+            
+            // Sort on zLevel
             if(annotation1.zLevel > annotation2.zLevel )//> 0)
             {
                 return NSOrderedDescending;
@@ -3774,17 +3782,19 @@
     {
         // center on user location unless we're already centered there (or very close)
         //
-        CGPoint centerOperatingRect = CGPointMake((_operatingRect.origin.x - _operatingRect.size.width) / 2, (_operatingRect.origin.y - _operatingRect.size.height) / 2);
+        CGPoint centerOperatingRect = CGPointMake(_operatingRect.origin.x +( _operatingRect.size.width / 2), _operatingRect.origin.y + (_operatingRect.size.height / 2));
 
         //CGPoint mapCenterPoint    = [self convertPoint:self.center fromView:self.superview];
         CGPoint mapCenterPoint    = [self convertPoint:centerOperatingRect fromView:self.superview];
         
         CGPoint userLocationPoint = [self mapPositionForAnnotation:self.userLocation];
         
+        /*
         if(_useFollowWithHeadingOnlyForCompass)
         {
             return;
         }
+         */
 
         if (fabsf(userLocationPoint.x - mapCenterPoint.x) > 1.0 || fabsf(userLocationPoint.y - mapCenterPoint.y) > 1.0)
         {
@@ -3820,6 +3830,11 @@
                     //[self zoomWithLatitudeLongitudeBoundsSouthWest:desiredSouthWest northEast:desiredNorthEast animated:YES];
                 }
             }
+        }
+        
+        if(_useFollowWithHeadingOnlyForCompass)
+        {
+            return;
         }
     }
 
