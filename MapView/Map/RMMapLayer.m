@@ -57,6 +57,7 @@
 
     self.annotation = nil;
     self.calloutOffset = CGPointZero;
+    self.canChangeTransform = YES;
 
 	return self;
 }
@@ -127,5 +128,18 @@
 //    else
 //        return [super actionForKey:key];
 //}
+
+#pragma mark -
+-(void) setTransform:(CATransform3D)transform
+{
+    if(self.canChangeTransform)
+    {
+        [super setTransform:transform];
+    }
+    else
+    {
+        
+    }
+}
 
 @end

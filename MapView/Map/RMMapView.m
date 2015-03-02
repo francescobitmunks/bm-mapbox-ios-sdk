@@ -3325,24 +3325,6 @@
                 return NSOrderedAscending;
             
 
-            /*
-            // If it's an RMImageAnnotation, use the zLevel to order
-            if([annotation1 isKindOfClass:[RMImageAnnotation class]] && [annotation2 isKindOfClass:[RMImageAnnotation class]])
-            {
-                if(((RMImageAnnotation*)annotation1).zLevel > ((RMImageAnnotation*)annotation2).zLevel)
-                {
-                    return NSOrderedDescending;
-                }
-                else
-                {
-                    return NSOrderedAscending;
-                }
-            }
-            */
-            
-            
-            
-            
             // Sort shapes above images
             if (   [annotation1.layer isKindOfClass:[RMShape class]] && [annotation2 isKindOfClass:[RMImageAnnotation class]])
             {
@@ -3362,56 +3344,21 @@
                 return NSOrderedDescending;
                 
             }
-            else
+            else if(annotation1.zLevel < annotation2.zLevel)
             {
                 return NSOrderedAscending;
             }
-            
-            // Sort by line width
-            /*
-            if([annotation1.layer isKindOfClass:[RMShape class]] && [annotation2.layer isKindOfClass:[RMShape class]])
-            {
-                float annotation1Width = ((RMShape*)annotation1.layer).lineWidth;
-                float annotation2Width = ((RMShape*)annotation2.layer).lineWidth;
-                
-                if(annotation1Width > annotation2Width)
-                {
-                    return NSOrderedAscending;
-                } else if(annotation1Width < annotation2Width)
-                {
-                    return NSOrderedDescending;
-                } else
-                {
-                }
-            }
-             */
-            
-            
-            //
-            /*
-            if(annotation1.zLevel > 0 && annotation2.zLevel > 0)
-            {
-                if(annotation1.zLevel > annotation2.zLevel > 0)
-                {
-                    return NSOrderedDescending;
-
-                }
-                else
-                {
-                    return NSOrderedAscending;
-                }
-            }
-             */
-            
-
             
             // Sort the rest in increasing y-position.
             //
             if (annotation1.absolutePosition.y > annotation2.absolutePosition.y)
+            {
                 return NSOrderedDescending;
-
+            }
             if (annotation1.absolutePosition.y < annotation2.absolutePosition.y)
+            {
                 return NSOrderedAscending;
+            }
 
             return NSOrderedSame;
         }];
@@ -4006,9 +3953,11 @@
 
                              _compassButton.alpha = 1.0;
 
+                             
                              for (RMAnnotation *annotation in _annotations)
                                  if ([annotation.layer isKindOfClass:[RMMarker class]])
                                      annotation.layer.transform = _annotationTransform;
+                             
 
                              [self correctPositionOfAllAnnotations];
                          }

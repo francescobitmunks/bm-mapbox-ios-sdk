@@ -170,4 +170,9 @@
 
 @property (nonatomic) NSInteger zLevel;
 
+
+// Bitmunks
+// canChangeTransform: disable transfor for a mapLayer (annotation) when the map is rotated.
+// example: there can be arrows (direction indicators) which should have a fixed direction.
+@property (nonatomic) BOOL canChangeTransform; // Default: YES
 @end

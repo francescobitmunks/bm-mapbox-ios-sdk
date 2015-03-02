@@ -64,6 +64,7 @@
 @synthesize isUserLocationAnnotation;
 @synthesize image;
 
+
 + (instancetype)annotationWithMapView:(RMMapView *)aMapView coordinate:(CLLocationCoordinate2D)aCoordinate andTitle:(NSString *)aTitle
 {
     return [[self alloc] initWithMapView:aMapView coordinate:aCoordinate andTitle:aTitle];
@@ -90,6 +91,8 @@
     self.clusteringEnabled = YES;
 
     self.isUserLocationAnnotation = NO;
+    
+    self.canChangeTransform = YES;
 
     layer = nil;
 
@@ -146,6 +149,8 @@
 
 - (void)setLayer:(RMMapLayer *)aLayer
 {
+    [aLayer setCanChangeTransform:_canChangeTransform];
+    
     CALayer *superLayer = [layer superlayer];
 
     if (layer != aLayer)
@@ -256,6 +261,17 @@
         return [NSString stringWithFormat:@"<%@: %@ @ (%.0f,%.0f) {(%.0f,%.0f) - (%.0f,%.0f)}>", NSStringFromClass([self class]), (self.title ? self.title : self.annotationType), self.projectedLocation.x, self.projectedLocation.y, self.projectedBoundingBox.origin.x, self.projectedBoundingBox.origin.y, self.projectedBoundingBox.origin.x + self.projectedBoundingBox.size.width, self.projectedBoundingBox.origin.y + self.projectedBoundingBox.size.height];
     else
         return [NSString stringWithFormat:@"<%@: %@ @ (%.0f,%.0f)>", NSStringFromClass([self class]), (self.title ? self.title : self.annotationType), self.projectedLocation.x, self.projectedLocation.y];
+}
+
+#pragma mark -
+-(void) setCanChangeTransform:(BOOL)canChangeTransform
+{
+    _canChangeTransform = canChangeTransform;
+    
+    if(layer)
+    {
+        [layer setCanChangeTransform:_canChangeTransform];
+    }
 }
 
 @end
