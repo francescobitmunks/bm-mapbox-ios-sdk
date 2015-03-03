@@ -1112,7 +1112,7 @@
                          animations:^(void)
                          {
                              [self setZoom:newZoom];
-                             [self setCenterCoordinate:newCenter animated:NO];
+                             [self setCenterCoordinate:newCenter animated:animated];
 
                              self.userTrackingMode = RMUserTrackingModeNone;
                          }
@@ -3781,7 +3781,7 @@
         
         if(_useFollowWithHeadingOnlyForCompass)
         {
-            return;
+            //return;
         }
     }
 
