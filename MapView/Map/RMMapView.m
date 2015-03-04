@@ -2026,7 +2026,8 @@
         if (anAnnotation.layer.canShowCallout && anAnnotation.title)
         {
             _currentCallout = [SMCalloutView platformCalloutView];
-
+            // BITMUNKS
+            _currentCallout.userInfo = anAnnotation.userInfo;
             if (RMPostVersion7)
                 _currentCallout.tintColor = self.tintColor;
 
