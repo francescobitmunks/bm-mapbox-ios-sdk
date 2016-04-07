@@ -1724,7 +1724,9 @@
         else
         {
             if (_mapScrollViewIsZooming)
-                [self correctPositionOfAllAnnotationsIncludingInvisibles:NO animated:YES];
+                // BITMUNKS fix by KURT
+                //
+                [self correctPositionOfAllAnnotationsIncludingInvisibles:NO animated:NO];
             else
                 [self correctPositionOfAllAnnotations];
         }
